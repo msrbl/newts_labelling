@@ -1,4 +1,4 @@
-version: "2"
+version: "1"
 deployments:
   - name: dlc_pipeline
     entrypoint: "flows.start_flow"

@@ -1,6 +1,7 @@
 prefect
 deeplabcut
 tensorflow
+tensorpack
 
 joblib
 opencv-python
