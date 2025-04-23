@@ -1,0 +1,7 @@
+prefect
+deeplabcut
+tensorflow
+
+joblib
+opencv-python
+google-api-python-client

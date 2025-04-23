@@ -1,0 +1,10 @@
+version: "2"
+deployments:
+  - name: dlc_pipeline
+    entrypoint: "flows.start_flow"
+    parameters: {}
+    storage:
+      block_type: local_file_system
+      config:
+        base_dir: "./src/flows"
+    work_queue_name: "default"
