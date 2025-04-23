@@ -1,0 +1,6 @@
+[core]
+    remote = drive_processed
+['remote "drive_raw"']
+    url = gdrive://1oKX-CjKn1zKN-OwPK77lXWcprRY9N_M5/raw
+['remote "drive_processed"']
+    url = gdrive://1oKX-CjKn1zKN-OwPK77lXWcprRY9N_M5/processed
