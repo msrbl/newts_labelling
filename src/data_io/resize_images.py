@@ -49,23 +49,23 @@ def _resize_annotations(annotations_dir: Path, annotation_dst_dir: Path):
     with open(dst_annotation_file, "w", encoding="utf-8") as f:
         json.dump(coco_data, f, ensure_ascii=False, indent=4)
     
-def resize_dataset(ds_dir: Path):
-    dst_dir = ds_dir.replace("raw", "processed")
+def resize_dataset(dataset_dir: Path):
+    processed_dir = Path(str(dataset_dir).replace("raw", "processed"))
     
-    images_dir = ds_dir / "images"
-    image_dst_dir = dst_dir / "images"
+    images_dir = dataset_dir / "images"
+    image_dst_dir = processed_dir / "images"
     
     image_dst_dir.mkdir(parents=True, exist_ok=True)
     Parallel(n_jobs=-1)(delayed(_resize_one)(p, image_dst_dir) for p in images_dir.glob("*"))
     
-    annotations_dir = ds_dir / "annotations"
+    annotations_dir = dataset_dir / "annotations"
     if not annotations_dir.exists():
         print(f"Annotations directory not found: {annotations_dir}")
         raise FileNotFoundError(f"Annotations directory not found: {annotations_dir}")
     
-    annotation_dst_dir = annotations_dir.replace("raw", "processed")
+    annotation_dst_dir = processed_dir / "annotations"
     annotation_dst_dir.mkdir(parents=True, exist_ok=True)
     
     _resize_annotations(annotations_dir, annotation_dst_dir)
     
-    print(f"Resized dataset {ds_dir}")
+    print(f"Resized dataset {dataset_dir}")

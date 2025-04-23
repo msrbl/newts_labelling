@@ -1,8 +1,12 @@
 import deeplabcut
 
+from src.config import ROOT_FOLDER
+
+videos = []
+
 deeplabcut.create_new_project(
     "DLC-Project", 
     "exp", 
-    [], 
-    working_directory=r"D:\university\ProjectWorkshop\SBER Reindeintification of newts\newts_labelling", 
+    videos, 
+    working_directory=ROOT_FOLDER, 
     multianimal=False)

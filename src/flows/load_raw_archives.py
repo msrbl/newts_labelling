@@ -16,9 +16,11 @@ from src.flows.aggregate_data import end_to_end_dataset
 @task
 def get_new_archives() -> list[dict]:
     raw_archives = list_tar_files(RAW_FOLDER_ID)
-    with open(DATA_FOLDER / "completed_archives.json", "r") as f:
+    with open(DATA_FOLDER / "processed_datasets.json", "r") as f:
         processed = json.load(f)
-    processed_names = {item['name'] for item in processed}
+    processed_names = {}
+    if processed:
+        processed_names = {item['name'] for item in processed}
 
     pattern = r"^(?P<name>[^/]+)\.tar$"
     new_archives = []
@@ -55,7 +57,7 @@ def load_raw_dataset(raw_folder: Path):
     for a in archives:
         a['name'] = a['name'].split(".")[0]
         
-        download_and_unpack(a, raw_folder)
+        # download_and_unpack(a, raw_folder)
         print(f"Unpacked {a['name']} to {raw_folder / a['name']}")
         
     return archives

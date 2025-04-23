@@ -1,7 +1,9 @@
 prefect
-deeplabcut
-tensorflow
-tensorpack
+keras==2.11
+deeplabcut==3.0.0rc8
+tensorpack==0.11
+tensorflow==2.12
+tf_slim
 
 joblib
 opencv-python

@@ -1,10 +1,10 @@
 import shutil
-from flows.upload_datasets import upload_processed_datasets
 from prefect import flow, task
 
 from src.config import DATA_FOLDER
 import json
 
+from src.flows.upload_datasets import upload_processed_datasets
 from src.flows.load_raw_archives import load_raw_dataset
 from src.flows.aggregate_data import end_to_end_dataset
 
@@ -21,28 +21,31 @@ def cleanup_raw(ds_name: str):
         print(f"Raw dataset directory does not exist: {dataset_path}")
 
 @flow(log_prints=True)
-def start_pipeline():
+def start_flow():
     """
     This is the main pipeline that orchestrates the loading of raw datasets and their processing.
     """
     try:
+        processed_datasets_file = DATA_FOLDER / "processed_datasets.json"
+        if not processed_datasets_file.exists():
+            with open(processed_datasets_file, "w") as f:
+                data = []
+                json.dump(data, f, indent=4)
+                
+        
         datasets = load_raw_dataset(RAW_FOLDER)
         if datasets is None:
-            raise ValueError("No new datasets found to process.")
+            print("No new datasets found.")
         
         for dataset in datasets:
-            end_to_end_dataset(dataset['name'], RAW_FOLDER)
+            end_to_end_dataset(RAW_FOLDER / dataset['name'])
         
-            file_path = DATA_FOLDER / "completed_archives.json"
-            if file_path.exists():
-                with open(file_path, "r") as f:
-                    data = json.load(f)
-            else:
-                data = []
+            with open(processed_datasets_file, "r") as f:
+                data = json.load(f)
                 
             if dataset not in data:
                 data.append(dataset)
-                with open(file_path, "w") as f:
+                with open(processed_datasets_file, "w") as f:
                     json.dump(data, f, indent=4)
                     
             cleanup_raw(dataset['name'])
@@ -53,4 +56,4 @@ def start_pipeline():
         return
         
 if __name__ == "__main__":
-    start_pipeline()
+    start_flow()

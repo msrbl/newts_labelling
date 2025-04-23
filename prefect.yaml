@@ -1,7 +1,8 @@
 version: "1"
 deployments:
   - name: dlc_pipeline
-    entrypoint: "flows.start_flow"
+    flow_name: "start_flow"
+    entrypoint: "src.flows.start_flow:start_flow"
     parameters: {}
     storage:
       block_type: local_file_system
