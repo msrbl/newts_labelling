@@ -1,7 +1,27 @@
+from PIL import Image, ExifTags
 import os
 from pathlib import Path
 import shutil
 import json
+
+def correct_image_orientation(src, dst):
+    try:
+        image = Image.open(src)
+        exif = image._getexif()
+        if exif is not None:
+            orientation_key = next((key for key, val in ExifTags.TAGS.items() if val == 'Orientation'), None)
+            if orientation_key is not None and orientation_key in exif:
+                orientation = exif[orientation_key]
+                if orientation == 3:
+                    image = image.rotate(180, expand=True)
+                elif orientation == 6:
+                    image = image.rotate(270, expand=True)
+                elif orientation == 8:
+                    image = image.rotate(90, expand=True)
+        image.save(dst)
+    except Exception as e:
+        print(f"Ошибка обработки EXIF для файла {src}: {e}")
+        shutil.copy2(src, dst)
 
 def copy_images(input_dir, out_images_dir):
     for root, dirs, files in os.walk(input_dir):
@@ -18,7 +38,7 @@ def copy_images(input_dir, out_images_dir):
                         counter += 1
                         new_file = f"{base}_copy{counter}{ext}"
                         dst = os.path.join(out_images_dir, new_file)
-                shutil.copy2(src, dst)
+                correct_image_orientation(src, dst)
 
 def merge_instances(input_dir):
     merged = {"images": [], "annotations": [], "categories": None, "defects": []}

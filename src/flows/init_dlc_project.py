@@ -9,9 +9,10 @@ from prefect import flow, task
 
 from src.deeplabcut.labels import create_csv_in_subfolders
 from src.utils import get_image_and_json_paths
+from src.utils.structured_data import build_skeleton
 
 @task(log_prints=False)
-def create_project(project_name, experimenter, video_paths):
+def create_project(project_name, experimenter, image_paths):
     """
     Create a new DeepLabCut project.
     :param project_name: Name of the project
@@ -32,9 +33,9 @@ def create_project(project_name, experimenter, video_paths):
     config_path = deeplabcut.create_new_project(
         project_name, 
         experimenter, 
-        video_paths, 
+        image_paths, 
         working_directory=ROOT_FOLDER, 
-        copy_videos=False
+        copy_videos=True
     )
     print(f"Created project with config: {config_path}")
     
@@ -78,12 +79,18 @@ def change_config(config_path):
         config = yaml.load(f, Loader=yaml.FullLoader)
 
     project_name = Path(config_path).parent.name
-    config['project_path'] = f"/content"
-    config['video_sets'] = {}
+    config['project_path'] = f"\\content"
+
+    # for old_key in list(config['video_sets'].keys()):
+    #     file_name = old_key.split("\\")[-1]
+    #     new_key = f"{config['project_path']}\\videos\\{file_name}"
+
+    #     config['video_sets'][new_key] = config['video_sets'].pop(old_key)
+                
     config['batch_size'] = 4
     config['bodyparts'] = [f"point{i}" for i in range(1, 22)]
     config['numframes2pick'] = 1
-    config['skeleton'] = [[f"point{i}" for i in range(1, 22)]]
+    config['skeleton'] = build_skeleton()
 
     with open(config_path, 'w') as f:
         yaml.dump(config, f, sort_keys=False)
@@ -107,7 +114,7 @@ def initialize_dlc_project():
         
         change_config(config_path)
         
-        pack_project_zip(project_root_dir)
+        # pack_project_zip(project_root_dir)
         
 if __name__ == "__main__":
     initialize_dlc_project()
