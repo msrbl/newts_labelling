@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 import shutil
 import json
-import argparse
 
 def copy_images(input_dir, out_images_dir):
     for root, dirs, files in os.walk(input_dir):

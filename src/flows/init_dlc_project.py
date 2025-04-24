@@ -78,7 +78,7 @@ def change_config(config_path):
         config = yaml.load(f, Loader=yaml.FullLoader)
 
     project_name = Path(config_path).parent.name
-    config['project_path'] = f"/content/{project_name}"
+    config['project_path'] = f"/content"
     config['video_sets'] = {}
     config['batch_size'] = 4
     config['bodyparts'] = [f"point{i}" for i in range(1, 22)]

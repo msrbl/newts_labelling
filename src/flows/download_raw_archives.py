@@ -6,7 +6,6 @@ import shutil
 import re
 
 from src.config import DRIVE_PROCESSED_FOLDER_ID, DRIVE_RAW_FOLDER_ID, RAW_FOLDER
-import json
 
 from src.services.merge_files import merge_subfolders
 

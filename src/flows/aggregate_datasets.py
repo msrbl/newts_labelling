@@ -1,7 +1,7 @@
 from pathlib import Path
 from prefect import flow, task
 
-from src.config import PROCESSED_FOLDER, RAW_FOLDER
+from src.config import RAW_FOLDER
 from src.services.resize_dataset import resize_dataset
     
 @task

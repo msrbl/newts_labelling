@@ -3,7 +3,6 @@ import shutil
 from prefect import flow, task
 
 from src.config import DATA_FOLDER, PROCESSED_FOLDER, RAW_FOLDER
-import json
 
 from src.flows.init_dlc_project import initialize_dlc_project
 from src.flows.upload_datasets import upload_processed_datasets
