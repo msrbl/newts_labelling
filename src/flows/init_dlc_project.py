@@ -81,11 +81,11 @@ def change_config(config_path):
     project_name = Path(config_path).parent.name
     config['project_path'] = f"\\content"
 
-    for old_key in list(config['video_sets'].keys()):
-        file_name = old_key.split("\\")[-1]
-        new_key = f"{config['project_path']}\\videos\\{file_name}"
+    # for old_key in list(config['video_sets'].keys()):
+    #     file_name = old_key.split("\\")[-1]
+    #     new_key = f"{config['project_path']}\\videos\\{file_name}"
 
-        config['video_sets'][new_key] = config['video_sets'].pop(old_key)
+    #     config['video_sets'][new_key] = config['video_sets'].pop(old_key)
                 
     config['batch_size'] = 4
     config['bodyparts'] = [f"point{i}" for i in range(1, 22)]
@@ -114,7 +114,7 @@ def initialize_dlc_project():
         
         change_config(config_path)
         
-        pack_project_zip(project_root_dir)
+        # pack_project_zip(project_root_dir)
         
 if __name__ == "__main__":
     initialize_dlc_project()
