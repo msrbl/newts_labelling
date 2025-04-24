@@ -89,14 +89,27 @@ newts_labelling/
 - **Run the Full Pipeline:**  
   To process datasets, generate DeepLabCut projects, and upload results, run:
   ```bash
-  python -m src.flows.start_flow
+  python -m src.main
   ```
-- **Resizing Only:**  
-  Modify the flow to run only the resizing stage by calling the corresponding function from `src/data_io/resize_dataset.py`.
 
+- **Starting Individual Flows:**  
+  Every flow can be easily started by running:
+  ```bash
+  python -m src.flows.<flow_name>
+  ```
+  For example:
+  - `python -m src.flows.download_raw_archives`
+  - `python -m src.flows.aggregate_datasets`
+  - `python -m src.flows.upload_datasets`
+  - `python -m src.flows.init_dlc_project`
+  
 ## Using Docker
 
-You can run the project in a Docker container. Make sure to specify the environment variables for Google Drive folders when running the container. For example:
+Before running the container, build the Docker image:
+```bash
+docker build -t <image-name> .
+```
+Then run the container by specifying the required environment variables:
 ```bash
 docker run -e DRIVE_RAW_FOLDER_ID="your_drive_raw_folder_id" -e DRIVE_PROCESSED_FOLDER_ID="your_drive_processed_folder_id" <image-name>
 ```
