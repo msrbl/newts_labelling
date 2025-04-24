@@ -44,6 +44,12 @@ def _resize_annotations(annotations_dir: Path, annotation_dst_dir: Path):
             ann["segmentation"] = [
                 [coord * DATA_SCALING_FACTOR for coord in seg] for seg in ann["segmentation"]
             ]
+        
+        if "keypoints" in ann and isinstance(ann["keypoints"], list):
+            ann["keypoints"] = [
+                kp if (i + 1) % 3 == 0 else float(kp * DATA_SCALING_FACTOR)
+                for i, kp in enumerate(ann["keypoints"])
+            ]
     
     dst_annotation_file = annotation_dst_dir / file_name
     with open(dst_annotation_file, "w", encoding="utf-8") as f:

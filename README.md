@@ -1,14 +1,17 @@
 # SBER Reindeintification of Newts
 
 This repository contains the **newts_labelling** project which provides tools for processing and labeling newt datasets. The project includes workflows for:
-- Loading raw archives.
-- Resizing images and COCO-format annotations.
-- Running data pipelines using Prefect for orchestration.
+- Loading raw dataset archives: Automatically locating and extracting raw .tar files from designated folders.
+- Resizing images and COCO-format annotations: Standardizing image sizes and updating annotation coordinates.
+- Generating DeepLabCut project: Preprocessing images and annotations to initialize a DeepLabCut analysis project.
+- Running data pipelines using Prefect for orchestration: Coordinating the overall workflow through scheduled tasks and dependency management.
 
 ## Project Structure
 
 ```
 newts_labelling/
+├── docs/                         # Documentation files and project notes
+├── data/                         # Raw and processed dataset files
 ├── src/
 │   ├── config.py                  # Configuration file with constants (e.g., SCALE, folder IDs)
 │   ├── data_io/
@@ -20,11 +23,29 @@ newts_labelling/
 │   ├── flows/
 │   │   ├── __init__.py
 │   │   └── start_flow.py          # Entry point for pipelines using Prefect
-│   └── temp.py                    # Temporary file for testing flows and functions
-├── prefect.yaml                   # Prefect deployment configuration file
-├── requirements.txt               # Project dependencies
+│   ├── deeplabcut/
+│   │   ├── __init__.py
+│   │   ├── pipeline.py            # Preprocess images and annotations for DeepLabCut projects
+│   │   └── parse_labels.py        # Parse and format labeling information for analysis
+│   └── utils/                     # Utility scripts and helper functions
+├── tests/                        # Unit and integration tests
+├── requirements.txt              # Project dependencies
 └── README.md
 ```
+
+## Detailed Workflows
+
+- Loading Raw Dataset Archives  
+  The pipeline automatically searches specified Google Drive folders using the ID set in environment variables. It downloads and extracts raw datasets for further processing.
+
+- Resizing Images and Annotations  
+  Using the defined scaling factor in `src/config.py`, images and their corresponding COCO annotations are resized. The coordinate adjustments are handled in `resize_images.py`.
+
+- Generating DeepLabCut Project  
+  This feature prepares the dataset for a DeepLabCut project by converting annotations and setting up directory structures as defined in `src/deeplabcut/pipeline.py`.
+
+- Prefect Orchestration  
+  The Prefect flow defined in `src/flows/start_flow.py` orchestrates the entire pipeline, ensuring that extraction, processing, and project generation are executed in the correct sequence.
 
 ## Installation
 
@@ -50,50 +71,16 @@ newts_labelling/
 
 ## Configuration
 
-- Update the configuration in `src/config.py` with appropriate values for your environment (such as `DATA_SCALING_FACTOR`, `RAW_FOLDER_ID`, and `PROCESSED_FOLDER_ID`).
+- Set the enviromnent variables `DRIVE_RAW_FOLDER_ID` and `DRIVE_PROCESSED_FOLDER_ID` to specify the Google Drive folder from which the raw .tar datasets will be taken, and the folder where the finished reformatted datasets will be uploaded.
+- You can update the configuration of `DATA_SCALING_FACTOR` in `src/config.py` with appropriate values.
 - For Google Drive operations, ensure you have the proper credentials (service account or OAuth configuration) in place.
-
-## Running the Flow
-
-The project uses [Prefect](https://www.prefect.io/) to orchestrate the data processing pipelines.
-
-1. **Run a Prefect agent (if not already running):**
-
-   ```bash
-   prefect agent start -q default
-   ```
-
-2. **Deploy and run the flow:**
-
-   The deployment is defined in `prefect.yaml`. Since the deployment entrypoint is `flows.start_flow`, run the flow using the full format:
-   
-   ```bash
-   prefect deployment run start_flow/dlc_pipeline
-   ```
-
-   Alternatively, if adjustments were made to the entrypoint name, use the corresponding `<FLOW_NAME>/<DEPLOYMENT_NAME>` format.
 
 ## Usage Examples
 
 - **Run Image Resizing:**
 
-  Within your project, you can trigger image resizing (and annotation scaling) from a script or an interactive session:
 
-  ```python
-  from pathlib import Path
-  from src.data_io.resize_images import resize_dataset, resize_annotations
 
-  ds_name = "my_dataset"
-  ds_dir = Path("data/raw/my_dataset")  # adjust the path as needed
-
-  resize_dataset(ds_name, ds_dir)
-  resize_annotations(ds_name, ds_dir)
+  ```bash
+  python -m src.flows.start_flow
   ```
-
-## Contributing
-
-Feel free to fork the repository and submit pull requests for improvements or bug fixes. Make sure to adhere to the code style and add tests for major changes.
-
-## License
-
-Include licensing information here if applicable.
