@@ -13,39 +13,48 @@ newts_labelling/
 ├── docs/                         # Documentation files and project notes
 ├── data/                         # Raw and processed dataset files
 ├── src/
-│   ├── config.py                  # Configuration file with constants (e.g., SCALE, folder IDs)
-│   ├── data_io/
+│   ├── config.py                 # Configuration file with constants
+│   ├── services/                 # Additional logic scripts to handle drive and files operations
 │   │   ├── __init__.py
 │   │   ├── drive/
-│   │   │   ├── drive_manager.py   # Functions to manage Google Drive operations
-│   │   ├── gdrive_raw.py          # Functions for listing and downloading files from Google Drive
-│   │   └── resize_images.py       # Image resizing and annotation transformation functions
-│   ├── flows/
+│   │   │   ├── client_secrets.json  # Contains Google Drive API credentials for authentication.
+│   │   │   └── drive_manager.py     # Module for handling Google Drive operations.
+│   │   ├── merge_files.py        # Merging instance JSONs and images
+│   │   └── resize_dataset.py     # Image resizing and annotation transformation
+│   ├── flows/                    # Prefect flows for orchestration
 │   │   ├── __init__.py
-│   │   └── start_flow.py          # Entry point for pipelines using Prefect
-│   ├── deeplabcut/
+│   │   ├── upload_datasets.py    # Upload processed datasets to Google Drive
+│   │   ├── download_raw_archives.py  # Download and extract raw archives
+│   │   ├── aggregate_datasets.py     # Aggregate and resize raw datasets
+│   │   └── init_dlc_project.py         # Initialize DeepLabCut project
+│   ├── deeplabcut/              # DeepLabCut related modules
 │   │   ├── __init__.py
-│   │   ├── pipeline.py            # Preprocess images and annotations for DeepLabCut projects
-│   │   └── parse_labels.py        # Parse and format labeling information for analysis
-│   └── utils/                     # Utility scripts and helper functions
-├── tests/                        # Unit and integration tests
-├── requirements.txt              # Project dependencies
+│   │   └── labels.py            # Handling label extraction & CSV creation
+│   ├── utils/                   # Utility modules and helper functions
+│   │   ├── __init__.py
+│   │   └── file_utils.py        # Common file handling functions
+│   └── main.py                  # Orchestration entry point (alternative to start_flow.py)
+├── tests/                       # Unit and integration tests
+├── requirements.txt             # Project dependencies
 └── README.md
 ```
 
 ## Detailed Workflows
 
-- Loading Raw Dataset Archives  
-  The pipeline automatically searches specified Google Drive folders using the ID set in environment variables. It downloads and extracts raw datasets for further processing.
+- **Download and Extraction:**  
+  The "download_raw_archives" flow locates new raw .tar archives from the designated Google Drive folder, downloads them, unpacks the contents, and collates files into a standard structure.
 
-- Resizing Images and Annotations  
-  Using the defined scaling factor in `src/config.py`, images and their corresponding COCO annotations are resized. The coordinate adjustments are handled in `resize_images.py`.
+- **Aggregation and Resizing:**  
+  The "aggregate_datasets" flow processes the raw dataset by aggregating subfolder files and resizing images while adjusting COCO annotations based on the defined scaling factor.
 
-- Generating DeepLabCut Project  
-  This feature prepares the dataset for a DeepLabCut project by converting annotations and setting up directory structures as defined in `src/deeplabcut/pipeline.py`.
+- **Upload Processed Datasets:**  
+  The "upload_datasets" flow packs the processed datasets into tar archives and uploads them back to a specified Google Drive folder.
 
-- Prefect Orchestration  
-  The Prefect flow defined in `src/flows/start_flow.py` orchestrates the entire pipeline, ensuring that extraction, processing, and project generation are executed in the correct sequence.
+- **DeepLabCut Project Initialization:**  
+  The "init_dlc_project" flow creates a DeepLabCut project using the processed datasets. It automatically extracts frames, fills in labeling data, updates the configuration, and packages the project.
+
+- **Prefect Orchestration:**  
+  The main pipeline flow (defined in `src/main.py`) orchestrates all the stages sequentially—from downloading to project initialization.
 
 ## Installation
 
@@ -71,16 +80,36 @@ newts_labelling/
 
 ## Configuration
 
-- Set the enviromnent variables `DRIVE_RAW_FOLDER_ID` and `DRIVE_PROCESSED_FOLDER_ID` to specify the Google Drive folder from which the raw .tar datasets will be taken, and the folder where the finished reformatted datasets will be uploaded.
-- You can update the configuration of `DATA_SCALING_FACTOR` in `src/config.py` with appropriate values.
-- For Google Drive operations, ensure you have the proper credentials (service account or OAuth configuration) in place.
+- Set the environment variables `DRIVE_RAW_FOLDER_ID` and `DRIVE_PROCESSED_FOLDER_ID` to specify the Google Drive folders for raw and processed datasets.
+- Adjust the scaling factor `DATA_SCALING_FACTOR` in `src/config.py` as needed.
+- Ensure that correct Google Drive credentials (service account) in the `client_secrets.json` file is located in the `src/services/drive` directory and available in `src/services/drive/drive_manager.py`.
 
-## Usage Examples
+## Usage
 
-- **Run Image Resizing:**
-
-
-
+- **Run the Full Pipeline:**  
+  To process datasets, generate DeepLabCut projects, and upload results, run:
   ```bash
   python -m src.flows.start_flow
   ```
+- **Resizing Only:**  
+  Modify the flow to run only the resizing stage by calling the corresponding function from `src/data_io/resize_dataset.py`.
+
+## Using Docker
+
+You can run the project in a Docker container. Make sure to specify the environment variables for Google Drive folders when running the container. For example:
+```bash
+docker run -e DRIVE_RAW_FOLDER_ID="your_drive_raw_folder_id" -e DRIVE_PROCESSED_FOLDER_ID="your_drive_processed_folder_id" <image-name>
+```
+
+## Troubleshooting
+
+- Verify that the environment variables `DRIVE_RAW_FOLDER_ID` and `DRIVE_PROCESSED_FOLDER_ID` are correctly set.
+- Ensure that your Google Drive credentials (`client_secrets.json`) are placed in the `src/data_io/drive` folder.
+- Check the logs output by Prefect for hints on failed tasks.
+
+## Contributing
+
+Contributions are welcome! Please follow these steps:
+- Fork the repository.
+- Create a new branch for your feature or bug fix.
+- Submit a pull request with a clear description of your changes.

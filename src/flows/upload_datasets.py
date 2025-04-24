@@ -1,6 +1,6 @@
 from pathlib import Path
 from prefect import flow, task
-from src.data_io.drive.drive_manager import list_tar_files, upload_tar_file
+from src.services.drive.drive_manager import list_tar_files, upload_tar_file
 import tarfile
 import os
 
@@ -41,3 +41,6 @@ def upload_processed_datasets():
     for dataset in datasets:
         pack_and_upload(dataset, PROCESSED_FOLDER)
         print(f"Packed and uploaded {dataset}")
+        
+if __name__ == "__main__":
+    upload_processed_datasets()

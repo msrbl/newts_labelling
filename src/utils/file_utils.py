@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 
-
 def get_image_and_json_paths(target_folder: Path):
     image_paths = []
     json_paths = []

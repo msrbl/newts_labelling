@@ -1,6 +1,6 @@
 from pathlib import Path
 from prefect import flow, task
-from src.data_io.drive.drive_manager import list_tar_files, download_tar_file
+from src.services.drive.drive_manager import list_tar_files, download_tar_file
 import tarfile
 import shutil
 import re
@@ -8,7 +8,7 @@ import re
 from src.config import DRIVE_PROCESSED_FOLDER_ID, DRIVE_RAW_FOLDER_ID, RAW_FOLDER
 import json
 
-from src.data_io.merge_files import merge_subfolders
+from src.services.merge_files import merge_subfolders
 
 @task
 def get_new_archives() -> list[dict]:
@@ -60,3 +60,6 @@ def load_raw_dataset():
         print(f"Unpacked {a['name']} to {RAW_FOLDER / a['name']}")
         
     return archives
+
+if __name__ == "__main__":
+    load_raw_dataset()
