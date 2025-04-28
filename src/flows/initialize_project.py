@@ -7,9 +7,19 @@ import yaml
 from src.config import PROCESSED_FOLDER, ROOT_FOLDER
 from prefect import flow, task
 
-from src.deeplabcut.labels import create_csv_in_subfolders
+from src.services.deeplabcut_labels import create_csv_in_subfolders
 from src.utils import get_image_and_json_paths
-from src.utils.structured_data import build_skeleton
+
+def _build_skeleton():
+    skeleton = []
+    for base in range(1, 22, 3):
+        left, mid, right = f"point{base}", f"point{base+1}", f"point{base+2}"
+        skeleton += [[left, mid], [mid, right]]
+
+    for top in (2, 5, 8, 11, 14, 17):
+        skeleton.append([f"point{top}", f"point{top+3}"])
+
+    return skeleton
 
 @task(log_prints=False)
 def create_project(project_name, experimenter, image_paths):
@@ -81,21 +91,21 @@ def change_config(config_path):
     project_name = Path(config_path).parent.name
     config['project_path'] = f"\\content"
 
-    # for old_key in list(config['video_sets'].keys()):
-    #     file_name = old_key.split("\\")[-1]
-    #     new_key = f"{config['project_path']}\\videos\\{file_name}"
+    for old_key in list(config['video_sets'].keys()):
+        file_name = old_key.split("\\")[-1]
+        new_key = f"{config['project_path']}\\videos\\{file_name}"
 
-    #     config['video_sets'][new_key] = config['video_sets'].pop(old_key)
+        config['video_sets'][new_key] = config['video_sets'].pop(old_key)
                 
     config['batch_size'] = 4
     config['bodyparts'] = [f"point{i}" for i in range(1, 22)]
     config['numframes2pick'] = 1
-    config['skeleton'] = build_skeleton()
+    config['skeleton'] = _build_skeleton()
 
     with open(config_path, 'w') as f:
         yaml.dump(config, f, sort_keys=False)
 
-    print("Конфигурация успешно обновлена!")
+    print("Successfully changed config.yaml")
 
 @flow(log_prints=True)
 def initialize_dlc_project():
@@ -114,7 +124,7 @@ def initialize_dlc_project():
         
         change_config(config_path)
         
-        # pack_project_zip(project_root_dir)
+        pack_project_zip(project_root_dir)
         
 if __name__ == "__main__":
     initialize_dlc_project()

@@ -4,8 +4,7 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload, MediaIoBaseUpload
 
-SERVICE_ACCOUNT_FILE = os.path.join(os.path.dirname(__file__), 'client_secrets.json')
-SCOPES = ['https://www.googleapis.com/auth/drive']
+from src.config import SCOPES, SERVICE_ACCOUNT_FILE
 
 def get_drive_service():
     creds = service_account.Credentials.from_service_account_file(

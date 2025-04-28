@@ -1,9 +1,6 @@
-client_secrets.json
-temp.py
-data/raw/*
-data/processed/*
-DLC-project-exp*/
-DLC-project-exp*
+credentials.json
+src/data/raw/*
+src/data/processed/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

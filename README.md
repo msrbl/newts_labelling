@@ -17,7 +17,7 @@ newts_labelling/
 │   ├── services/                 # Additional logic scripts to handle drive and files operations
 │   │   ├── __init__.py
 │   │   ├── drive/
-│   │   │   ├── client_secrets.json  # Contains Google Drive API credentials for authentication.
+│   │   │   ├── credentials.json  # Contains Google Drive API credentials for authentication.
 │   │   │   └── drive_manager.py     # Module for handling Google Drive operations.
 │   │   ├── merge_files.py        # Merging instance JSONs and images
 │   │   └── resize_dataset.py     # Image resizing and annotation transformation
@@ -82,7 +82,7 @@ newts_labelling/
 
 - Set the environment variables `DRIVE_RAW_FOLDER_ID` and `DRIVE_PROCESSED_FOLDER_ID` to specify the Google Drive folders for raw and processed datasets.
 - Adjust the scaling factor `DATA_SCALING_FACTOR` in `src/config.py` as needed.
-- Ensure that correct Google Drive credentials (service account) in the `client_secrets.json` file is located in the `src/services/drive` directory and available in `src/services/drive/drive_manager.py`.
+- Ensure that correct Google Drive credentials (service account) in the `credentials.json` file is located in the `src/services/drive` directory and available in `src/services/drive/drive_manager.py`.
 
 ## Usage
 
@@ -117,7 +117,7 @@ docker run -e DRIVE_RAW_FOLDER_ID="your_drive_raw_folder_id" -e DRIVE_PROCESSED_
 ## Troubleshooting
 
 - Verify that the environment variables `DRIVE_RAW_FOLDER_ID` and `DRIVE_PROCESSED_FOLDER_ID` are correctly set.
-- Ensure that your Google Drive credentials (`client_secrets.json`) are placed in the `src/data_io/drive` folder.
+- Ensure that your Google Drive credentials (`credentials.json`) are placed in the `src/data_io/drive` folder.
 - Check the logs output by Prefect for hints on failed tasks.
 
 ## Contributing
